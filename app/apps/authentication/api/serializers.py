@@ -12,27 +12,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'confirmed_password']
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_confirmed_password(self, value):
-
-        password = self.initial_data.get('password')
-        if password and value and password != value:
-            raise serializers.ValidationError('Passwords do not match')
-        return value
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirmed_password']:
+            raise serializers.ValidationError({'confirmed_password': 'Passwords do not match'})
+        return attrs
 
     def validate_email(self, value):
-
         if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError('Email already exists')
         return value
 
     def save(self):
-
-        password = self.validated_data['password']
-
-        account = CustomUser(
-            email=self.validated_data['email']
-        )
-        account.set_password(password)
+        account = CustomUser(email=self.validated_data['email'])
+        account.set_password(self.validated_data['password'])
+        account.is_active = False
         account.save()
         return account
 
@@ -52,7 +45,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if not user.check_password(password):
             raise serializers.ValidationError("Invalid email or password")
-        
+
         if not user.is_active:
             raise serializers.ValidationError("Account is not activated")
 

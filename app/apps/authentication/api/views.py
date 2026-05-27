@@ -1,19 +1,28 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView, Response, status
 from rest_framework.permissions import AllowAny
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 from ..models import CustomUser
+from .tokens import account_activation_token
+from .utils import send_activation_email
 
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
 
         if serializer.is_valid():
-            user = serializer.save()
+            try:
+                user = serializer.save()
+                send_activation_email(user, request)
+            except Exception as e:
+                return Response({"detail": "Registration failed. Please try again."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return Response({
                 "user": {
                     "id": user.pk,
@@ -25,8 +34,22 @@ class RegisterView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-class ActivateAccountView():
-    pass
+class ActivateAccountView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, CustomUser.DoesNotExist):
+            return Response({"message": "Activation failed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
+        
+        return Response({"message": "Activation failed."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(TokenObtainPairView):

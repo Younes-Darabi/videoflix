@@ -32,6 +32,10 @@ if not User.objects.filter(email=email).exists():
     User.objects.create_superuser(email=email, password=password)
     print(f"Superuser '{email}' created.")
 else:
+    user = User.objects.get(email=email)
+    if not user.is_active:
+        user.is_active = True
+        user.save()
     print(f"Superuser '{email}' already exists.")
 EOF
 
