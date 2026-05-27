@@ -1,10 +1,10 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView, Response, status
 from rest_framework.permissions import AllowAny
-from django.contrib.auth.models import User
 
-from .serializers import RegisterSerializer
-    
+from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
+from ..models import CustomUser
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -13,10 +13,61 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response({'detail': 'User created successfully!'}, status=status.HTTP_201_CREATED)
+            user = serializer.save()
+            return Response({
+                "user": {
+                    "id": user.pk,
+                    "email": user.email
+                },
+                "token": "activation_token"
+            }, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class ActivateAccountView():
+    pass
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        refresh = serializer.validated_data["refresh"]
+        access = serializer.validated_data["access"]
+
+        response = Response({"detail": "Login successful"})
+
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
+        response.set_cookie(
+            key="access_token",
+            value=str(access),
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
+        email = request.data.get('email')
+        user = CustomUser.objects.get(email=email)
+
+        response.data = {
+            "detail": "Login successful",
+            "user": {
+                "id": user.pk,
+                "username": user.email
+            }
+        }
+        return response
 
 
 class LogoutView(APIView):
@@ -31,45 +82,7 @@ class LogoutView(APIView):
         return response
 
 
-class LoginView(TokenObtainPairView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = super().post(request, *args, **kwargs)
-        refresh = response.data.get('refresh')
-        access = response.data.get('access')
-
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh,
-            httponly=True,
-            secure=True,
-            samesite='Lax'
-        )
-
-        response.set_cookie(
-            key="access_token",
-            value=access,
-            httponly=True,
-            secure=True,
-            samesite='Lax'
-        )
-
-        username = request.data.get('username')
-        user = User.objects.get(username=username)
-
-        response.data = {
-            "detail": "Login successfully!",
-            "user": {
-                "id": user.pk,
-                "username": user.username,
-                "email": user.email
-            }
-        }
-        return response
-
-
-class TokenRefreshView(TokenRefreshView):
+class CustomTokenRefreshView(TokenRefreshView):
 
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
@@ -93,7 +106,7 @@ class TokenRefreshView(TokenRefreshView):
         access_token = serializer.validated_data.get('access')
 
         response = Response(
-            {"detail": "Token refreshed"}
+            {"detail": "access Token refreshed"}
         )
 
         response.set_cookie(
