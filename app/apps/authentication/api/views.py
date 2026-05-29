@@ -5,9 +5,10 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
 
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
-from .services import account_activation_token, send_activation_email
+from .services import account_activation_token, send_activation_email, send_password_reset_email
 from ..models import CustomUser
 
 
@@ -53,6 +54,51 @@ class ActivateAccountView(APIView):
             return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
 
         return Response({"detail": "Activation link is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        email = request.data.get('email')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            send_password_reset_email(user, request)
+        except CustomUser.DoesNotExist:
+            pass
+
+        return Response(
+            {"detail": "An email has been sent to reset your password."},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, CustomUser.DoesNotExist):
+            return Response({"detail": "Invalid link."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not default_token_generator.check_token(user, token):
+            return Response({"detail": "Invalid or expired link."}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if new_password != confirm_password:
+            return Response({"detail": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"detail": "Your Password has been successfully reset."}, status=status.HTTP_200_OK)
 
 
 class LoginView(TokenObtainPairView):
@@ -131,7 +177,10 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         access_token = serializer.validated_data.get('access')
 
-        response = Response({"detail": "access Token refreshed"})
+        response = Response({
+            "detail": "access Token refreshed",
+            "access": access_token
+            })
 
         response.set_cookie(
             key="access_token",
