@@ -1,13 +1,14 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework.views import APIView, Response, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
+from .services import account_activation_token, send_activation_email
 from ..models import CustomUser
-from .tokens import account_activation_token
-from .utils import send_activation_email
 
 
 class RegisterView(APIView):
@@ -28,11 +29,13 @@ class RegisterView(APIView):
                     "id": user.pk,
                     "email": user.email
                 },
-                "token": "activation_token"
-            }, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+                "token": account_activation_token.make_token(user)
+            },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ActivateAccountView(APIView):
     permission_classes = [AllowAny]
@@ -42,14 +45,14 @@ class ActivateAccountView(APIView):
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, CustomUser.DoesNotExist):
-            return Response({"message": "Activation failed."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Activation link is invalid."}, status=status.HTTP_400_BAD_REQUEST)
 
         if account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
             return Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
-        
-        return Response({"message": "Activation failed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Activation link is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(TokenObtainPairView):
@@ -128,9 +131,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         access_token = serializer.validated_data.get('access')
 
-        response = Response(
-            {"detail": "access Token refreshed"}
-        )
+        response = Response({"detail": "access Token refreshed"})
 
         response.set_cookie(
             key="access_token",

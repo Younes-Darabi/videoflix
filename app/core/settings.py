@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     
     # Local apps
     'apps.authentication',
-    'apps.video',
 ]
 
 MIDDLEWARE = [
