@@ -40,6 +40,7 @@ class RegisterView(APIView):
 
 class ActivateAccountView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def get(self, request, uidb64, token):
         try:
