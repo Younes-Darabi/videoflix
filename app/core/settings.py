@@ -46,9 +46,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_rq',
     'corsheaders',
-    
+      
     # Local apps
     'apps.authentication',
+    'apps.video',
 ]
 
 MIDDLEWARE = [
