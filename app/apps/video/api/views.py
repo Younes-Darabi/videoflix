@@ -10,13 +10,15 @@ from ..models import Video
 
 
 class VideoView(generics.ListAPIView):
-    
-    queryset = Video.objects.all()
+    """Returns a list of all available videos."""
+
+    queryset = Video.objects.all().order_by('-created_at')
     serializer_class = VideoSerializer
     permission_classes = [IsAuthenticated]
 
 
 class VideoManifestView(APIView):
+    """Serves the HLS manifest file for a video."""
 
     def get(self, request, movie_id, resolution):
         path = f'/app/media/videos/{movie_id}/{resolution}/index.m3u8'
@@ -26,7 +28,8 @@ class VideoManifestView(APIView):
     
     
 class VideoSegmentView(APIView):
-    
+    """Serves a single HLS video segment."""
+
     def get(self, request, movie_id, resolution, segment):
         path = f'/app/media/videos/{movie_id}/{resolution}/{segment}'
         if not os.path.exists(path):

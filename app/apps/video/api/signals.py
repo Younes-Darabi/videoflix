@@ -9,9 +9,8 @@ from ..models import Video
 
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
-    print('Video wurde gespeichert')
+    """Queues HLS conversion tasks when a new video is uploaded."""
     if created:
-        print('New video created')
         queue = django_rq.get_queue('default')
         if instance.video_file:
             queue.enqueue(convert_480p, instance.video_file.path, instance.id)
@@ -20,6 +19,7 @@ def video_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Video)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """Deletes video file from storage when a video record is deleted."""
     if instance.video_file :
         if os.path.isfile(instance.video_file.path):
             os.remove(instance.video_file.path)

@@ -3,6 +3,7 @@ import subprocess
 
 
 def convert_480p(source, video_id):
+    """Converts video to 480p HLS format using FFMPEG."""
     output_dir = f"/app/media/videos/{video_id}/480p"
     os.makedirs(output_dir, exist_ok=True)
     target = f"{output_dir}/index.m3u8"
@@ -11,6 +12,7 @@ def convert_480p(source, video_id):
 
 
 def convert_720p(source, video_id):
+    """Converts video to 720p HLS format using FFMPEG."""
     output_dir = f"/app/media/videos/{video_id}/720p"
     os.makedirs(output_dir, exist_ok=True)
     target = f"{output_dir}/index.m3u8"
@@ -19,6 +21,7 @@ def convert_720p(source, video_id):
 
 
 def convert_1080p(source, video_id):
+    """Converts video to 1080p HLS format using FFMPEG."""
     output_dir = f"/app/media/videos/{video_id}/1080p"
     os.makedirs(output_dir, exist_ok=True)
     target = f"{output_dir}/index.m3u8"

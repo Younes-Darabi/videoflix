@@ -13,6 +13,7 @@ from ..models import CustomUser
 
 
 class RegisterView(APIView):
+    """Registers a new user and sends activation email."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -39,6 +40,7 @@ class RegisterView(APIView):
 
 
 class ActivateAccountView(APIView):
+    """Activates a user account via email token."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -58,6 +60,7 @@ class ActivateAccountView(APIView):
 
 
 class PasswordResetView(APIView):
+    """Sends a password reset email."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -77,6 +80,7 @@ class PasswordResetView(APIView):
 
 
 class PasswordResetConfirmView(APIView):
+    """Confirms and sets a new password."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -103,6 +107,7 @@ class PasswordResetConfirmView(APIView):
 
 
 class LoginView(TokenObtainPairView):
+    """Authenticates user and sets JWT cookies."""
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
@@ -144,6 +149,7 @@ class LoginView(TokenObtainPairView):
 
 
 class LogoutView(APIView):
+    """Clears JWT cookies and logs out the user."""
 
     def post(self, request):
         response = Response(
@@ -156,6 +162,7 @@ class LogoutView(APIView):
 
 
 class CustomTokenRefreshView(TokenRefreshView):
+    """Refreshes the access token from cookie."""
 
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')

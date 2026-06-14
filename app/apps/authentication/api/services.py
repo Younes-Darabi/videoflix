@@ -7,6 +7,8 @@ from django.conf import settings
 
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
+    """Generates tokens for email account activation."""
+
     def _make_hash_value(self, user, timestamp):
         return str(user.pk) + str(timestamp) + str(user.is_active)
 
@@ -15,6 +17,7 @@ account_activation_token = AccountActivationTokenGenerator()
 
 
 def send_activation_email(user, request):
+    """Sends an account activation email with a unique token link."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_activation_token.make_token(user)
     frontend_url = settings.FRONTEND_URL
@@ -36,6 +39,7 @@ def send_activation_email(user, request):
 
 
 def send_password_reset_email(user, request):
+    """Sends a password reset email with a unique token link."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     frontend_url = settings.FRONTEND_URL

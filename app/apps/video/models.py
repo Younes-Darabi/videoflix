@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Video(models.Model):
+    """Represents a video with metadata, thumbnail, and HLS-converted files."""
 
     class CATEGORY(models.TextChoices):
         DRAMA='drama','Drama'

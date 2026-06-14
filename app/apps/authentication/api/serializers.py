@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ..models import CustomUser
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """Validates and creates a new user account."""
     confirmed_password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -31,6 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Validates user credentials and returns JWT tokens."""
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
