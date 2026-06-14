@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, null=True)),
                 ('thumbnail_url', models.ImageField(upload_to='thumbnails/')),
                 ('category', models.CharField(choices=[('drama', 'Drama'), ('romance', 'Romance'), ('action', 'Action')], max_length=20)),
+                ('video_file', models.FileField(blank=True, null=True, upload_to='videos/raw/')),
             ],
         ),
     ]
