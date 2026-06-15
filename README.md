@@ -30,19 +30,20 @@ A Netflix-style video streaming backend built with Django REST Framework.
 
 ### Setup
 
-1. Clone the repository
-2. Copy `.env.template` to `.env` and fill in the values
-3. Run:
+1. **Clone the project:**
 
-```bash
-docker-compose up --build
-```
+        git clone https://github.com/Younes-Darabi/videoflix
+        cd videoflix
+   
+3. Copy `.env.template` to `.env`:
+       
+        copy .env.template .env
+   
+4. Run:
 
-4. Create a superuser:
+        docker-compose up --build
 
-```bash
-docker-compose exec web python manage.py createsuperuser
-```
+
 
 ## API Endpoints
 
