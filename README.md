@@ -34,8 +34,10 @@ A Netflix-style video streaming backend built with Django REST Framework.
 
         git clone https://github.com/Younes-Darabi/videoflix
         cd videoflix
-   
-3. Copy `.env.template` to `.env`:
+
+2. Open `entrypoint.sh` in VS Code, click `CRLF` in the bottom right corner, change it to `LF` and save.
+
+3. Copy `.env.template` to `.env` and fill in the values:
        
         copy .env.template .env
    
