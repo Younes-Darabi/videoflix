@@ -4,28 +4,35 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from ..models import CustomUser
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     """Validates and creates a new user account."""
+
     confirmed_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'password', 'confirmed_password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["email", "password", "confirmed_password"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['confirmed_password']:
-            raise serializers.ValidationError({'confirmed_password': 'Passwords do not match'})
+        """Checks that password and confirmed_password match."""
+        if attrs["password"] != attrs["confirmed_password"]:
+            raise serializers.ValidationError(
+                {"confirmed_password": "Passwords do not match"}
+            )
         return attrs
 
     def validate_email(self, value):
+        """Checks that the email is not already registered."""
         if CustomUser.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Email already exists')
+            raise serializers.ValidationError("Email already exists")
         return value
 
     def save(self):
-        account = CustomUser(email=self.validated_data['email'])
-        account.set_password(self.validated_data['password'])
+        """Creates and returns an inactive user account."""
+        account = CustomUser(email=self.validated_data["email"])
+        account.set_password(self.validated_data["password"])
         account.is_active = False
         account.save()
         return account
@@ -33,10 +40,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Validates user credentials and returns JWT tokens."""
+
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
+        """Verifies credentials and returns JWT tokens for the authenticated user."""
         email = attrs.get("email")
         password = attrs.get("password")
 
@@ -53,6 +62,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         refresh = RefreshToken.for_user(user)
         return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
         }

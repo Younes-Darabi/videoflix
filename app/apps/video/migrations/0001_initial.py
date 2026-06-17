@@ -7,20 +7,40 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Video',
+            name="Video",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('title', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('thumbnail_url', models.ImageField(upload_to='thumbnails/')),
-                ('category', models.CharField(choices=[('drama', 'Drama'), ('romance', 'Romance'), ('action', 'Action')], max_length=20)),
-                ('video_file', models.FileField(blank=True, null=True, upload_to='videos/raw/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("title", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("thumbnail_url", models.ImageField(upload_to="thumbnails/")),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("drama", "Drama"),
+                            ("romance", "Romance"),
+                            ("action", "Action"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "video_file",
+                    models.FileField(blank=True, null=True, upload_to="videos/raw/"),
+                ),
             ],
         ),
     ]

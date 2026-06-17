@@ -5,9 +5,10 @@ class JWTAuthenticationFromCookie(JWTAuthentication):
     """Reads JWT access token from cookies instead of Authorization header."""
 
     def authenticate(self, request):
+        """Reads JWT from cookie if Authorization header is absent."""
         header = self.get_header(request)
         if header is None:
-            raw_token = request.COOKIES.get('access_token')
+            raw_token = request.COOKIES.get("access_token")
             if raw_token is None:
                 return None
         else:

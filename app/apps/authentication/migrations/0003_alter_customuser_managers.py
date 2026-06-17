@@ -6,13 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0002_alter_customuser_email'),
+        ("authentication", "0002_alter_customuser_email"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='customuser',
-            managers=[
-            ],
+            name="customuser",
+            managers=[],
         ),
     ]

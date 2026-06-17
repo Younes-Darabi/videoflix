@@ -1,4 +1,7 @@
-from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
+from django.contrib.auth.tokens import (
+    PasswordResetTokenGenerator,
+    default_token_generator,
+)
 from django.core.mail import EmailMultiAlternatives
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -10,6 +13,7 @@ class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     """Generates tokens for email account activation."""
 
     def _make_hash_value(self, user, timestamp):
+        """Builds hash from user pk, timestamp, and is_active to invalidate token after activation."""
         return str(user.pk) + str(timestamp) + str(user.is_active)
 
 
@@ -23,10 +27,13 @@ def send_activation_email(user, request):
     frontend_url = settings.FRONTEND_URL
     link = f"{frontend_url}/pages/auth/activate.html?uid={uid}&token={token}"
 
-    html_content = render_to_string('authentication/emails/activation_email.html', {
-        'user': user,
-        'link': link,
-    })
+    html_content = render_to_string(
+        "authentication/emails/activation_email.html",
+        {
+            "user": user,
+            "link": link,
+        },
+    )
 
     email = EmailMultiAlternatives(
         subject="Activate your account",
@@ -45,10 +52,13 @@ def send_password_reset_email(user, request):
     frontend_url = settings.FRONTEND_URL
     link = f"{frontend_url}/pages/auth/confirm_password.html?uid={uid}&token={token}"
 
-    html_content = render_to_string('authentication/emails/password_reset_email.html', {
-        'user': user,
-        'link': link,
-    })
+    html_content = render_to_string(
+        "authentication/emails/password_reset_email.html",
+        {
+            "user": user,
+            "link": link,
+        },
+    )
 
     email = EmailMultiAlternatives(
         subject="Reset your password",

@@ -1,4 +1,5 @@
 import os
+import shutil
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 import django_rq
@@ -11,15 +12,20 @@ from ..models import Video
 def video_post_save(sender, instance, created, **kwargs):
     """Queues HLS conversion tasks when a new video is uploaded."""
     if created:
-        queue = django_rq.get_queue('default')
+        queue = django_rq.get_queue("low")
         if instance.video_file:
             queue.enqueue(convert_480p, instance.video_file.path, instance.id)
             queue.enqueue(convert_720p, instance.video_file.path, instance.id)
             queue.enqueue(convert_1080p, instance.video_file.path, instance.id)
 
+
 @receiver(post_delete, sender=Video)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     """Deletes video file from storage when a video record is deleted."""
-    if instance.video_file :
+    if instance.video_file:
         if os.path.isfile(instance.video_file.path):
             os.remove(instance.video_file.path)
+
+    hls_dir = f"/app/media/videos/{instance.id}"
+    if os.path.isdir(hls_dir):
+        shutil.rmtree(hls_dir)
