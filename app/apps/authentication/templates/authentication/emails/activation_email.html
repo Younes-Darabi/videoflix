@@ -20,50 +20,50 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .header {
-            background-color: #1a1a2e;
             padding: 32px;
             text-align: center;
         }
         .header h1 {
-            color: #ffffff;
+            color: #6c2bd9;
             margin: 0;
-            font-size: 24px;
+            font-size: 32px;
             letter-spacing: 2px;
+        }
+        .header h1 span {
+            color: #6c2bd9;
         }
         .body {
             padding: 40px 32px;
-            text-align: center;
-        }
-        .body h2 {
-            color: #1a1a2e;
-            font-size: 20px;
         }
         .body p {
-            color: #555555;
+            color: #333333;
             font-size: 15px;
             line-height: 1.6;
+            margin: 8px 0;
+        }
+        .body a.name {
+            color: #6c2bd9;
+            text-decoration: none;
         }
         .btn {
             display: inline-block;
             margin: 24px 0;
             padding: 14px 32px;
-            background-color: #e50914;
+            background-color: #3b5bdb;
             color: #ffffff;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 30px;
             font-size: 16px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
         .footer {
-            background-color: #f4f4f4;
             padding: 20px 32px;
-            text-align: center;
+            text-align: left;
         }
         .footer p {
-            color: #aaaaaa;
-            font-size: 12px;
-            margin: 0;
+            color: #555555;
+            font-size: 14px;
+            margin: 4px 0;
         }
     </style>
 </head>
@@ -71,21 +71,21 @@
     <div class="container">
 
         <div class="header">
-            <h1>VIDEOFLIX</h1>
+            <img src="https://videoflix.younes-darabi.de/logo.svg" alt="Videoflix" height="40">
         </div>
 
         <div class="body">
-            <h2>Welcome, {{ user.email }}!</h2>
-            <p>Thank you for registering. Please activate your account by clicking the button below.</p>
-            <p>This link will expire after a short time.</p>
+            <p>Dear <a class="name" href="#">{{ user.email }}</a>,</p>
+            <p>Thank you for registering with <a class="name" href="#">Videoflix</a>. To complete your registration and verify your email address, please click the link below:</p>
 
-            <a href="{{ link }}" class="btn">Activate Account</a>
+            <a href="{{ link }}" class="btn">Activate account</a>
 
-            <p>If you did not create an account, please ignore this email.</p>
+            <p>If you did not create an account with us, please disregard this email.</p>
         </div>
 
         <div class="footer">
-            <p>&copy; 2026 Videoflix. All rights reserved.</p>
+            <p>Best regards,</p>
+            <p>Your Videoflix Team.</p>
         </div>
 
     </div>
