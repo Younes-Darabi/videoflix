@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
     default_token_generator,
@@ -7,6 +8,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.conf import settings
+from email.mime.image import MIMEImage
 
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
@@ -18,6 +20,17 @@ class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
 
 
 account_activation_token = AccountActivationTokenGenerator()
+
+LOGO_PATH = os.path.join(os.path.dirname(__file__), "../templates/authentication/emails/logo.png")
+
+
+def _attach_logo(email):
+    """Attaches the Videoflix logo as an inline image with Content-ID 'logo'."""
+    with open(LOGO_PATH, "rb") as f:
+        img = MIMEImage(f.read())
+        img.add_header("Content-ID", "<logo>")
+        img.add_header("Content-Disposition", "inline", filename="logo.png")
+        email.attach(img)
 
 
 def send_activation_email(user, request):
@@ -42,6 +55,7 @@ def send_activation_email(user, request):
         to=[user.email],
     )
     email.attach_alternative(html_content, "text/html")
+    _attach_logo(email)
     email.send(fail_silently=False)
 
 
@@ -67,4 +81,5 @@ def send_password_reset_email(user, request):
         to=[user.email],
     )
     email.attach_alternative(html_content, "text/html")
+    _attach_logo(email)
     email.send(fail_silently=False)
