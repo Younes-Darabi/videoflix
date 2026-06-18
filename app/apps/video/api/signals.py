@@ -21,10 +21,14 @@ def video_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Video)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """Deletes video file from storage when a video record is deleted."""
+    """Deletes video file, thumbnail, and HLS directory when a video record is deleted."""
     if instance.video_file:
         if os.path.isfile(instance.video_file.path):
             os.remove(instance.video_file.path)
+
+    if instance.thumbnail_url:
+        if os.path.isfile(instance.thumbnail_url.path):
+            os.remove(instance.thumbnail_url.path)
 
     hls_dir = f"/app/media/videos/{instance.id}"
     if os.path.isdir(hls_dir):
