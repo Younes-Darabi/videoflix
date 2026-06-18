@@ -21,7 +21,8 @@ class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
 
 account_activation_token = AccountActivationTokenGenerator()
 
-LOGO_PATH = os.path.join(os.path.dirname(__file__), "../templates/authentication/emails/logo.png")
+LOGO_PATH = os.path.join(os.path.dirname(
+    __file__), "../templates/authentication/emails/logo.png")
 
 
 def _attach_logo(email):
